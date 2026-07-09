@@ -1,0 +1,12 @@
+{
+  "name": "gentree-villas-hoa-management",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local HOA management system for Gentree Villas Homeowners Association Inc. with Google Sheets sync.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gentree Villas HOA Management</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <section id="loginScreen" class="login-screen">
+      <form id="loginForm" class="login-card">
+        <div>
+          <h1>Gentree Villas Homeowners Association Inc.</h1>
+          <p>Sign in to manage HOA records</p>
+        </div>
+        <label class="field"><span>Username</span><input id="loginUsername" type="text" autocomplete="username" required></label>
+        <label class="field"><span>Password</span><input id="loginPassword" type="password" autocomplete="current-password" required></label>
+        <button type="submit">Sign In</button>
+        <p id="loginError" class="form-error"></p>
+      </form>
+    </section>
+
+    <header class="topbar">
+      <div>
+        <h1>Gentree Villas Homeowners Association Inc.</h1>
+        <p>HOA Management System</p>
+      </div>
+      <div class="sync-panel">
+        <span id="currentUserLabel" class="user-label"></span>
+        <span id="syncStatus" class="status">Local</span>
+        <button id="saveCloudBtn" class="secondary" title="Save all local changes to Google Sheets">Save</button>
+        <button id="logoutBtn" class="icon-button secondary" title="Sign out" aria-label="Sign out">Logout</button>
+      </div>
+    </header>
+
+    <main class="shell">
+      <aside class="sidebar" aria-label="Main navigation">
+        <button class="nav-button active" data-view="dashboard">Dashboard</button>
+        <button class="nav-button" data-view="members">Members</button>
+        <button class="nav-button" data-view="dues">Monthly Dues</button>
+        <button class="nav-button" data-view="expenses">Expenses</button>
+        <button class="nav-button" data-view="payroll">Payroll</button>
+        <button class="nav-button" data-view="soa">SOA Print</button>
+        <button class="nav-button admin-only" data-view="users">Users</button>
+        <button class="nav-button admin-only" data-view="settings">Settings</button>
+      </aside>
+
+      <section class="content">
+        <section id="dashboard" class="view active">
+          <div class="view-head">
+            <h2>Dashboard</h2>
+            <div class="button-row">
+              <label class="field compact">
+                <span>From</span>
+                <input id="dashboardFrom" type="month">
+              </label>
+              <label class="field compact">
+                <span>To</span>
+                <input id="dashboardTo" type="month">
+              </label>
+              <button id="changePasswordBtn" class="secondary">Change Password</button>
+            </div>
+          </div>
+          <div class="metrics">
+            <article><span>Total Fund</span><strong id="metricFund">₱0.00</strong></article>
+            <article><span>Monthly Dues Billed</span><strong id="metricBilled">₱0.00</strong></article>
+            <article><span>Monthly Dues Paid</span><strong id="metricPaid">₱0.00</strong></article>
+            <article><span>Outstanding Dues</span><strong id="metricBalance">₱0.00</strong></article>
+            <article><span>Expenses</span><strong id="metricExpenses">₱0.00</strong></article>
+            <article><span>Payroll</span><strong id="metricPayroll">₱0.00</strong></article>
+          </div>
+          <div class="split">
+            <section>
+              <h3>Members With Balance</h3>
+              <input id="balanceSearch" type="search" placeholder="Search name, block, or lot">
+              <div id="balanceList" class="list"></div>
+              <div id="balancePager" class="pager"></div>
+            </section>
+            <section>
+              <h3>Recent Activity</h3>
+              <input id="activitySearch" type="search" placeholder="Search user, activity, receipt, or date">
+              <div id="activityList" class="list scroll-list"></div>
+              <div id="activityPager" class="pager"></div>
+            </section>
+          </div>
+        </section>
+
+        <section id="members" class="view">
+          <div class="view-head">
+            <h2>Members</h2>
+            <div class="button-row">
+              <button id="newMemberBtn">Add Member</button>
+              <button id="importMembersBtn" class="secondary">Import CSV</button>
+              <button id="printMembersBtn" class="secondary">Print Member List</button>
+              <input id="memberCsvInput" type="file" accept=".csv,text/csv" hidden>
+            </div>
+          </div>
+          <div class="toolbar">
+            <input id="memberSearch" type="search" placeholder="Search name, block, lot, contact, notes">
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Block</th>
+                  <th>Lot</th>
+                  <th>Contact</th>
+                  <th>Notes</th>
+                  <th>Advance Credit</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="membersTable"></tbody>
+            </table>
+          </div>
+          <div id="membersPager" class="pager"></div>
+        </section>
+
+        <section id="dues" class="view">
+          <div class="view-head">
+            <h2>Monthly Dues</h2>
+            <div class="button-row">
+              <button id="generateDuesBtn">Generate Monthly Dues</button>
+              <button id="advancePaymentBtn" class="secondary">Record Advance Payment</button>
+            </div>
+          </div>
+          <form id="duesForm" class="inline-form">
+            <label class="field"><span>Period</span><input id="duesMonth" type="month" required></label>
+            <label class="field"><span>Amount per member</span><input id="duesAmount" type="number" min="0" step="0.01" required></label>
+            <button type="submit">Create Bills</button>
+          </form>
+          <div class="toolbar">
+            <input id="duesSearch" type="search" placeholder="Search name, block, lot, or period">
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Period</th>
+                  <th>Member</th>
+                  <th>Block/Lot</th>
+                  <th>Amount</th>
+                  <th>Paid</th>
+                  <th>Balance</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="duesTable"></tbody>
+            </table>
+          </div>
+          <div id="duesPager" class="pager"></div>
+        </section>
+
+        <section id="expenses" class="view">
+          <div class="view-head">
+            <h2>Expenses</h2>
+          </div>
+          <form id="expenseForm" class="inline-form">
+            <label class="field"><span>Date</span><input id="expenseDate" type="date" required></label>
+            <label class="field"><span>Category</span><input id="expenseCategory" type="text" required></label>
+            <label class="field"><span>Description</span><input id="expenseDescription" type="text" required></label>
+            <label class="field"><span>Amount</span><input id="expenseAmount" type="number" min="0" step="0.01" required></label>
+            <button type="submit">Add Expense</button>
+          </form>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Actions</th></tr></thead>
+              <tbody id="expensesTable"></tbody>
+            </table>
+          </div>
+          <div id="expensesPager" class="pager"></div>
+        </section>
+
+        <section id="payroll" class="view">
+          <div class="view-head">
+            <h2>Payroll</h2>
+          </div>
+          <form id="payrollForm" class="inline-form">
+            <label class="field"><span>Date</span><input id="payrollDate" type="date" required></label>
+            <label class="field"><span>Employee</span><input id="payrollName" type="text" required></label>
+            <label class="field"><span>Role</span><input id="payrollRole" type="text" required></label>
+            <label class="field"><span>Amount</span><input id="payrollAmount" type="number" min="0" step="0.01" required></label>
+            <button type="submit">Add Payroll</button>
+          </form>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Date</th><th>Employee</th><th>Role</th><th>Amount</th><th>Actions</th></tr></thead>
+              <tbody id="payrollTable"></tbody>
+            </table>
+          </div>
+          <div id="payrollPager" class="pager"></div>
+        </section>
+
+        <section id="soa" class="view">
+          <div class="view-head">
+            <h2>Statement of Account</h2>
+            <div class="button-row">
+              <button id="printSoaBtn">Print Selected</button>
+              <button id="downloadSoaPdfBtn" class="secondary">Download PDF</button>
+              <button id="emailSoaBtn" class="secondary">Send Email</button>
+              <button id="printAllSoaBtn" class="secondary">Print All Members</button>
+            </div>
+          </div>
+          <div class="inline-form">
+            <label class="field"><span>Search member</span><input id="soaSearch" type="search" placeholder="Search name, block, or lot"></label>
+            <label class="field"><span>Member</span><select id="soaMember"></select></label>
+            <label class="field"><span>From</span><input id="soaFrom" type="month"></label>
+            <label class="field"><span>To</span><input id="soaTo" type="month"></label>
+          </div>
+          <article id="soaPreview" class="soa-paper"></article>
+        </section>
+
+        <section id="settings" class="view">
+          <div class="view-head">
+            <h2>Settings</h2>
+          </div>
+          <form id="settingsForm" class="settings-grid">
+            <label class="field"><span>Google Apps Script Web App URL</span><input id="scriptUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec"></label>
+            <label class="field"><span>Default monthly dues</span><input id="defaultDues" type="number" min="0" step="0.01"></label>
+            <label class="field"><span>Beginning fund balance</span><input id="startingFund" type="number" step="0.01"></label>
+            <label class="field"><span>Prepared by</span><input id="preparedBy" type="text"></label>
+            <button type="submit">Save Settings</button>
+          </form>
+          <div class="notice">
+            Data is saved locally in this browser and synced to Google Sheets when a Web App URL is configured.
+          </div>
+        </section>
+
+        <section id="users" class="view">
+          <div class="view-head">
+            <h2>System Users</h2>
+            <button id="newUserBtn">Add User</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Username</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Last Updated By</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="usersTable"></tbody>
+            </table>
+          </div>
+          <div id="usersPager" class="pager"></div>
+        </section>
+      </section>
+    </main>
+
+    <section id="memberPrintArea" class="print-area"></section>
+
+    <dialog id="memberDialog">
+      <form id="memberForm" method="dialog">
+        <h2 id="memberDialogTitle">Add Member</h2>
+        <input id="memberId" type="hidden">
+        <label class="field"><span>Full name</span><input id="memberName" type="text" required></label>
+        <label class="field"><span>Block</span><input id="memberBlock" type="text" required></label>
+        <label class="field"><span>Lot</span><input id="memberLot" type="text" required></label>
+        <label class="field"><span>Contact number</span><input id="memberContact" type="text"></label>
+        <label class="field"><span>Email</span><input id="memberEmail" type="email"></label>
+        <label class="field"><span>Notes</span><textarea id="memberNotes" rows="4"></textarea></label>
+        <label class="field"><span>Status</span><select id="memberStatus"><option>Active</option><option>Inactive</option><option>Delinquent</option></select></label>
+        <menu>
+          <button type="button" id="cancelMemberBtn">Cancel</button>
+          <button type="submit">Save Member</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <dialog id="paymentDialog">
+      <form id="paymentForm" method="dialog">
+        <h2>Record Payment</h2>
+        <input id="paymentDueId" type="hidden">
+        <label class="field"><span>Payment date</span><input id="paymentDate" type="date" required></label>
+        <label class="field"><span>Amount</span><input id="paymentAmount" type="number" min="0" step="0.01" required></label>
+        <label class="field"><span>Receipt number</span><input id="paymentReceipt" type="text" required></label>
+        <menu>
+          <button type="button" id="cancelPaymentBtn">Cancel</button>
+          <button type="submit">Save Payment</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <dialog id="advancePaymentDialog">
+      <form id="advancePaymentForm" method="dialog">
+        <h2>Record Advance Payment</h2>
+        <label class="field"><span>Search member</span><input id="advanceMemberSearch" type="search" placeholder="Search name, block, or lot"></label>
+        <label class="field"><span>Member</span><select id="advanceMember" required></select></label>
+        <label class="field"><span>Payment date</span><input id="advanceDate" type="date" required></label>
+        <label class="field"><span>Amount</span><input id="advanceAmount" type="number" min="0" step="0.01" required></label>
+        <label class="field"><span>Receipt number</span><input id="advanceReceipt" type="text" required></label>
+        <menu>
+          <button type="button" id="cancelAdvancePaymentBtn">Cancel</button>
+          <button type="submit">Save Advance Payment</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <dialog id="userDialog">
+      <form id="userForm" method="dialog">
+        <h2 id="userDialogTitle">Add User</h2>
+        <input id="userId" type="hidden">
+        <label class="field"><span>Full name</span><input id="userName" type="text" required></label>
+        <label class="field"><span>Username</span><input id="userUsername" type="text" required></label>
+        <label class="field"><span>Password</span><input id="userPassword" type="password"></label>
+        <label class="field"><span>Role</span><select id="userRole"><option>Admin</option><option>Staff</option></select></label>
+        <label class="field"><span>Status</span><select id="userStatus"><option>Active</option><option>Inactive</option></select></label>
+        <menu>
+          <button type="button" id="cancelUserBtn">Cancel</button>
+          <button type="submit">Save User</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <dialog id="passwordDialog">
+      <form id="passwordForm" method="dialog">
+        <h2>Change Password</h2>
+        <label class="field"><span>Current password</span><input id="currentPassword" type="password" autocomplete="current-password" required></label>
+        <label class="field"><span>New password</span><input id="newPassword" type="password" autocomplete="new-password" required></label>
+        <label class="field"><span>Confirm new password</span><input id="confirmPassword" type="password" autocomplete="new-password" required></label>
+        <p id="passwordError" class="form-error"></p>
+        <menu>
+          <button type="button" id="cancelPasswordBtn">Cancel</button>
+          <button type="submit">Save Password</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>
