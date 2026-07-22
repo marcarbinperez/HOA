@@ -1,8 +1,8 @@
 # Gentree Villas HOA Management System
 
-This is a local HOA management system for **Gentree Villas Homeowners Association Inc.** It manages members, block and lot records, monthly dues, payments, total fund, expenses, payroll, and printable Statements of Account.
+This is a local HOA management system for **Gentree Villas Homeowners Association Inc.** It manages members, block and lot records, monthly dues, donations, court and clubhouse rentals, membership and certificate payments, total fund, expenses, payroll, and printable Statements of Account.
 
-The app stores data in the browser for offline/local use and can sync the same data to Google Sheets when internet is available. The Google Sheet uses separate tabs with readable rows for members, dues, payments, expenses, payroll, activity, and settings.
+The app stores data in the browser for offline/local use and can sync the same data to Google Sheets when internet is available. The Google Sheet uses separate tabs with readable rows for members, dues, payments, donations, rentals, memberships, certificates, expenses, payroll, activity, and settings.
 
 ## Start the App
 
@@ -113,7 +113,7 @@ Gmail does not allow local web apps to automatically attach a file through a com
 - The **Beginning fund balance** in Settings should be set once when starting the system. After that, the fund is computed as:
 
 ```text
-Beginning fund balance + all payments - all expenses - all payroll
+Beginning fund balance + dues payments + donations + rentals + membership payments + certificate payments - all expenses - all payroll
 ```
 
 - Use **Logout** before closing the app when possible. Logout saves all local records to Google Sheets before signing out.

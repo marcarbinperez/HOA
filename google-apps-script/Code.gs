@@ -1,7 +1,7 @@
 var SPREADSHEET_ID = "1zEi0twiEq6s14YS-tMj3S2PXAfb6CI24lX4dP3AePNI";
 var ADVANCE_DUE_ID = "__ADVANCE_PAYMENT__";
 
-var SHEETS = ["settings", "users", "members", "dues", "payments", "expenses", "payroll", "activity"];
+var SHEETS = ["settings", "users", "members", "dues", "payments", "donations", "rentals", "memberships", "certificates", "expenses", "payroll", "activity"];
 
 var HEADERS = {
   settings: ["key", "value"],
@@ -9,6 +9,10 @@ var HEADERS = {
   members: ["id", "name", "block", "lot", "contact", "email", "notes", "status", "advancePayment", "createdAt", "createdBy", "updatedAt", "updatedBy"],
   dues: ["id", "memberId", "month", "amount", "createdAt", "createdBy"],
   payments: ["id", "dueId", "memberId", "date", "amount", "receipt", "paymentType", "advancePayment", "createdAt", "createdBy"],
+  donations: ["id", "date", "source", "note", "amount", "createdAt", "createdBy"],
+  rentals: ["id", "facility", "date", "time", "note", "amount", "createdAt", "createdBy"],
+  memberships: ["id", "memberId", "date", "note", "amount", "createdAt", "createdBy"],
+  certificates: ["id", "memberId", "date", "note", "amount", "createdAt", "createdBy"],
   expenses: ["id", "date", "category", "description", "amount", "createdAt", "createdBy"],
   payroll: ["id", "date", "name", "role", "amount", "createdAt", "createdBy"],
   activity: ["id", "date", "text", "userId", "userName", "createdAt"]

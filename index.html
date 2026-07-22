@@ -38,6 +38,10 @@
         <button class="nav-button active" data-view="dashboard">Dashboard</button>
         <button class="nav-button" data-view="members">Members</button>
         <button class="nav-button" data-view="dues">Monthly Dues</button>
+        <button class="nav-button" data-view="donations">Donations</button>
+        <button class="nav-button" data-view="rentals">Rentals</button>
+        <button class="nav-button" data-view="memberships">Membership</button>
+        <button class="nav-button" data-view="certificates">Certificates</button>
         <button class="nav-button" data-view="expenses">Expenses</button>
         <button class="nav-button" data-view="payroll">Payroll</button>
         <button class="nav-button" data-view="soa">SOA Print</button>
@@ -151,6 +155,71 @@
             </table>
           </div>
           <div id="duesPager" class="pager"></div>
+        </section>
+
+        <section id="donations" class="view">
+          <div class="view-head"><h2>Donations</h2></div>
+          <form id="donationForm" class="inline-form">
+            <label class="field"><span>Date received</span><input id="donationDate" type="date" required></label>
+            <label class="field"><span>Donor / Source</span><input id="donationSource" type="text" required></label>
+            <label class="field"><span>Note</span><input id="donationNote" type="text" required></label>
+            <label class="field"><span>Amount</span><input id="donationAmount" type="number" min="0.01" step="0.01" required></label>
+            <button type="submit">Add Donation</button>
+          </form>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Date</th><th>Donor / Source</th><th>Note</th><th>Amount</th><th>Actions</th></tr></thead>
+            <tbody id="donationsTable"></tbody>
+          </table></div>
+          <div id="donationsPager" class="pager"></div>
+        </section>
+
+        <section id="rentals" class="view">
+          <div class="view-head"><h2>Court &amp; Clubhouse Rentals</h2></div>
+          <form id="rentalForm" class="inline-form">
+            <label class="field"><span>Facility</span><select id="rentalFacility" required><option>Court</option><option>Clubhouse</option></select></label>
+            <label class="field"><span>Date</span><input id="rentalDate" type="date" required></label>
+            <label class="field"><span>Time</span><input id="rentalTime" type="time" required></label>
+            <label class="field"><span>Note / Renter details</span><input id="rentalNote" type="text" required></label>
+            <label class="field"><span>Amount</span><input id="rentalAmount" type="number" min="0.01" step="0.01" required></label>
+            <button type="submit">Add Rental</button>
+          </form>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Facility</th><th>Date</th><th>Time</th><th>Note / Details</th><th>Amount</th><th>Actions</th></tr></thead>
+            <tbody id="rentalsTable"></tbody>
+          </table></div>
+          <div id="rentalsPager" class="pager"></div>
+        </section>
+
+        <section id="memberships" class="view">
+          <div class="view-head"><h2>Membership Payments</h2></div>
+          <form id="membershipForm" class="inline-form">
+            <label class="field"><span>Member</span><select id="membershipMember" required></select></label>
+            <label class="field"><span>Payment date</span><input id="membershipDate" type="date" required></label>
+            <label class="field"><span>Note</span><input id="membershipNote" type="text" placeholder="Period, receipt, or details" required></label>
+            <label class="field"><span>Amount</span><input id="membershipAmount" type="number" min="0.01" step="0.01" required></label>
+            <button type="submit">Record Payment</button>
+          </form>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Date</th><th>Member</th><th>Note</th><th>Amount</th><th>Actions</th></tr></thead>
+            <tbody id="membershipsTable"></tbody>
+          </table></div>
+          <div id="membershipsPager" class="pager"></div>
+        </section>
+
+        <section id="certificates" class="view">
+          <div class="view-head"><h2>Certificate Payments</h2></div>
+          <form id="certificateForm" class="inline-form">
+            <label class="field"><span>Member</span><select id="certificateMember" required></select></label>
+            <label class="field"><span>Payment date</span><input id="certificateDate" type="date" required></label>
+            <label class="field"><span>Note / Certificate details</span><input id="certificateNote" type="text" required></label>
+            <label class="field"><span>Amount</span><input id="certificateAmount" type="number" min="0.01" step="0.01" required></label>
+            <button type="submit">Record Payment</button>
+          </form>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Date</th><th>Member</th><th>Note / Certificate</th><th>Amount</th><th>Actions</th></tr></thead>
+            <tbody id="certificatesTable"></tbody>
+          </table></div>
+          <div id="certificatesPager" class="pager"></div>
         </section>
 
         <section id="expenses" class="view">

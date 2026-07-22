@@ -2,7 +2,7 @@ const HOA_NAME = "Gentree Villas Homeowners Association Inc.";
 const STORAGE_KEY = "gentreeVillasHoaDataV1";
 const SYNC_META_KEY = "gentreeVillasHoaSyncMetaV1";
 const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6mEGMr1OlJc-k8Vus30c2JayWxSdiGTdBTyXE4HxjT-m3hc3iN_5ijKoijp9ZkV8D/exec";
-const CLOUD_COLLECTIONS = ["users", "members", "dues", "payments", "expenses", "payroll", "activity"];
+const CLOUD_COLLECTIONS = ["users", "members", "dues", "payments", "donations", "rentals", "memberships", "certificates", "expenses", "payroll", "activity"];
 const PAGE_SIZE = 15;
 const MAX_PAGE_BUTTONS = 8;
 const ADVANCE_DUE_ID = "__ADVANCE_PAYMENT__";
@@ -18,6 +18,10 @@ const state = {
   members: [],
   dues: [],
   payments: [],
+  donations: [],
+  rentals: [],
+  memberships: [],
+  certificates: [],
   expenses: [],
   payroll: [],
   activity: []
@@ -37,6 +41,10 @@ const pageState = {
   activity: 1,
   members: 1,
   dues: 1,
+  donations: 1,
+  rentals: 1,
+  memberships: 1,
+  certificates: 1,
   expenses: 1,
   payroll: 1,
   users: 1
@@ -389,6 +397,16 @@ function normalizeRecords() {
     date: normalizeDate(payroll.date),
     amount: money(payroll.amount)
   }));
+
+  ["donations", "rentals", "memberships", "certificates"].forEach(collection => {
+    state[collection] = state[collection].map(record => ({
+      ...record,
+      id: normalizeId(record.id),
+      memberId: normalizeId(record.memberId),
+      date: normalizeDate(record.date),
+      amount: money(record.amount)
+    }));
+  });
 }
 
 function normalizeId(value) {
@@ -605,7 +623,11 @@ function dashboardRecordMonths() {
       return due ? normalizeMonth(due.month) : "";
     }),
     ...state.expenses.map(expense => normalizeMonth(expense.date)),
-    ...state.payroll.map(payroll => normalizeMonth(payroll.date))
+    ...state.payroll.map(payroll => normalizeMonth(payroll.date)),
+    ...state.donations.map(item => normalizeMonth(item.date)),
+    ...state.rentals.map(item => normalizeMonth(item.date)),
+    ...state.memberships.map(item => normalizeMonth(item.date)),
+    ...state.certificates.map(item => normalizeMonth(item.date))
   ].filter(Boolean))].sort();
 }
 
@@ -645,13 +667,16 @@ function totals(from = currentMonth(), to = from) {
   const outstanding = duesForRange.reduce((sum, due) => sum + dueBalance(due), 0);
   const expenseTotal = periodItemsRange(state.expenses, "date", rangeFrom, rangeTo).reduce((sum, item) => sum + money(item.amount), 0);
   const payrollTotal = periodItemsRange(state.payroll, "date", rangeFrom, rangeTo).reduce((sum, item) => sum + money(item.amount), 0);
+  const otherIncome = [state.donations, state.rentals, state.memberships, state.certificates]
+    .flatMap(items => periodItemsRange(items, "date", rangeFrom, rangeTo))
+    .reduce((sum, item) => sum + money(item.amount), 0);
   return {
     billed,
     paid,
     balance: outstanding,
     expenses: expenseTotal,
     payroll: payrollTotal,
-    fund: money(state.settings.startingFund) + paid - expenseTotal - payrollTotal
+    fund: money(state.settings.startingFund) + paid + otherIncome - expenseTotal - payrollTotal
   };
 }
 
@@ -695,6 +720,7 @@ function render() {
   renderDashboard();
   renderMembers();
   renderDues();
+  renderIncomeRecords();
   renderExpenses();
   renderPayroll();
   renderUsers();
@@ -876,6 +902,30 @@ function renderPayroll() {
       <td class="actions"><button class="table-action danger" data-delete-payroll="${payroll.id}">Delete</button></td>
     </tr>
   `).join("") || `<tr><td colspan="5">No payroll recorded yet.</td></tr>`;
+}
+
+function renderIncomeRecords() {
+  renderIncomeTable("donations", "donationsTable", "donationsPager", record => [record.date, record.source, record.note, peso.format(money(record.amount))], 5);
+  renderIncomeTable("rentals", "rentalsTable", "rentalsPager", record => [record.facility, record.date, record.time, record.note, peso.format(money(record.amount))], 6);
+  renderIncomeTable("memberships", "membershipsTable", "membershipsPager", record => [record.date, memberName(record.memberId), record.note, peso.format(money(record.amount))], 5);
+  renderIncomeTable("certificates", "certificatesTable", "certificatesPager", record => [record.date, memberName(record.memberId), record.note, peso.format(money(record.amount))], 5);
+  renderMemberPaymentOptions("membershipMember");
+  renderMemberPaymentOptions("certificateMember");
+}
+
+function renderIncomeTable(collection, tableId, pagerId, cellsFor, columnCount) {
+  const records = [...state[collection]].sort(byDateDesc);
+  const page = paginateRecords(collection, records, pagerId, renderIncomeRecords);
+  el(tableId).innerHTML = page.map(record => `<tr>${cellsFor(record).map(value => `<td>${escapeHtml(value)}</td>`).join("")}<td class="actions"><button class="table-action danger" data-delete-income="${collection}" data-record-id="${record.id}">Delete</button></td></tr>`).join("")
+    || `<tr><td colspan="${columnCount}">No records yet.</td></tr>`;
+}
+
+function renderMemberPaymentOptions(selectId) {
+  const select = el(selectId);
+  const selected = select.value;
+  const members = state.members.filter(member => member.status !== "Inactive").sort((a, b) => a.name.localeCompare(b.name));
+  select.innerHTML = members.map(member => `<option value="${member.id}">${escapeHtml(member.name)} - Block ${escapeHtml(member.block)}, Lot ${escapeHtml(member.lot)}</option>`).join("");
+  if (members.some(member => sameId(member.id, selected))) select.value = selected;
 }
 
 function renderUsers() {
@@ -1444,6 +1494,10 @@ function buildSyncPayload() {
     payments: state.payments.map(payment => ({ ...payment })),
     expenses: state.expenses.map(expense => ({ ...expense })),
     payroll: state.payroll.map(payroll => ({ ...payroll })),
+    donations: state.donations.map(item => ({ ...item })),
+    rentals: state.rentals.map(item => ({ ...item })),
+    memberships: state.memberships.map(item => ({ ...item })),
+    certificates: state.certificates.map(item => ({ ...item })),
     activity: state.activity.map(item => ({ ...item }))
   };
 }
@@ -1756,6 +1810,25 @@ function bindEvents() {
     commitChange("Payroll saved locally - click Save");
   });
 
+  el("donationForm").addEventListener("submit", event => {
+    event.preventDefault();
+    addIncomeRecord("donations", { date: el("donationDate").value, source: el("donationSource").value.trim(), note: el("donationNote").value.trim(), amount: money(el("donationAmount").value) }, `Recorded donation from ${el("donationSource").value.trim()}`, event.target, "donationDate");
+  });
+  el("rentalForm").addEventListener("submit", event => {
+    event.preventDefault();
+    addIncomeRecord("rentals", { facility: el("rentalFacility").value, date: el("rentalDate").value, time: el("rentalTime").value, note: el("rentalNote").value.trim(), amount: money(el("rentalAmount").value) }, `Recorded ${el("rentalFacility").value.toLowerCase()} rental`, event.target, "rentalDate");
+  });
+  el("membershipForm").addEventListener("submit", event => {
+    event.preventDefault();
+    const memberId = el("membershipMember").value;
+    addIncomeRecord("memberships", { memberId, date: el("membershipDate").value, note: el("membershipNote").value.trim(), amount: money(el("membershipAmount").value) }, `Recorded membership payment from ${memberName(memberId)}`, event.target, "membershipDate");
+  });
+  el("certificateForm").addEventListener("submit", event => {
+    event.preventDefault();
+    const memberId = el("certificateMember").value;
+    addIncomeRecord("certificates", { memberId, date: el("certificateDate").value, note: el("certificateNote").value.trim(), amount: money(el("certificateAmount").value) }, `Recorded certificate payment from ${memberName(memberId)}`, event.target, "certificateDate");
+  });
+
   el("settingsForm").addEventListener("submit", event => {
     event.preventDefault();
     state.settings.scriptUrl = el("scriptUrl").value.trim();
@@ -1777,6 +1850,8 @@ function bindEvents() {
     const deletePayroll = target.dataset?.deletePayroll;
     const editUser = target.dataset?.editUser;
     const deleteUser = target.dataset?.deleteUser;
+    const deleteIncome = target.dataset?.deleteIncome;
+    const recordId = target.dataset?.recordId;
 
     if (editMember) openMemberDialog(memberById(editMember));
     if (deleteMember && confirm("Delete this member? Existing dues and payments will remain for records.")) {
@@ -1809,6 +1884,11 @@ function bindEvents() {
       logActivity("Deleted a payroll record");
       commitChange();
     }
+    if (deleteIncome && recordId && state[deleteIncome] && confirm("Delete this income record? The amount will be removed from the total fund.")) {
+      deleteById(state[deleteIncome], recordId);
+      logActivity(`Deleted a ${deleteIncome} record`);
+      commitChange();
+    }
     if (editUser) openUserDialog(state.users.find(user => user.id === editUser));
     if (deleteUser && requireAdmin() && confirm("Delete this system user?")) {
       const user = state.users.find(item => item.id === deleteUser);
@@ -1821,6 +1901,18 @@ function bindEvents() {
       commitChange();
     }
   });
+}
+
+function addIncomeRecord(collection, data, activityText, form, dateInputId) {
+  if (money(data.amount) <= 0) {
+    alert("Amount must be greater than zero.");
+    return;
+  }
+  state[collection].push({ id: uid(), ...data, createdAt: new Date().toISOString(), createdBy: currentUserName() });
+  logActivity(activityText);
+  form.reset();
+  el(dateInputId).value = today();
+  commitChange("Income saved locally - click Save");
 }
 
 function generateDues(month, amount) {
@@ -1903,6 +1995,10 @@ function seedDates() {
   el("soaTo").value = currentMonth();
   el("expenseDate").value = today();
   el("payrollDate").value = today();
+  el("donationDate").value = today();
+  el("rentalDate").value = today();
+  el("membershipDate").value = today();
+  el("certificateDate").value = today();
 }
 
 load();
