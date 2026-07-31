@@ -913,6 +913,7 @@ function renderIncomeRecords() {
   renderIncomeTable("memberships", "membershipsTable", "membershipsPager", record => [record.date, memberName(record.memberId), record.note, peso.format(money(record.amount))], 5);
   renderIncomeTable("certificates", "certificatesTable", "certificatesPager", record => [record.date, memberName(record.memberId), record.note, peso.format(money(record.amount))], 5);
   renderIncomeTable("stickers", "stickersTable", "stickersPager", record => [record.date, record.year, record.vehicleType, record.plateNumber, record.ownerName, `Block ${record.block}, Lot ${record.lot}`, peso.format(money(record.amount))], 8);
+  el("stickerTotalCollected").textContent = peso.format(state.stickers.reduce((total, record) => total + money(record.amount), 0));
   renderMemberPaymentOptions("membershipMember");
   renderMemberPaymentOptions("certificateMember");
 }
