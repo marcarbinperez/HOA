@@ -1502,6 +1502,7 @@ function buildSyncPayload() {
     rentals: state.rentals.map(item => ({ ...item })),
     memberships: state.memberships.map(item => ({ ...item })),
     certificates: state.certificates.map(item => ({ ...item })),
+    stickers: state.stickers.map(item => ({ ...item })),
     activity: state.activity.map(item => ({ ...item }))
   };
 }
