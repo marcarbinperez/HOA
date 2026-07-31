@@ -160,6 +160,7 @@
 
         <section id="donations" class="view">
           <div class="view-head"><h2>Donations</h2></div>
+          <div class="metrics"><article><span>Total Donation Collections</span><strong id="donationTotalCollected">₱0.00</strong></article></div>
           <form id="donationForm" class="inline-form">
             <label class="field"><span>Date received</span><input id="donationDate" type="date" required></label>
             <label class="field"><span>Donor / Source</span><input id="donationSource" type="text" required></label>
@@ -176,6 +177,7 @@
 
         <section id="rentals" class="view">
           <div class="view-head"><h2>Court &amp; Clubhouse Rentals</h2></div>
+          <div class="metrics"><article><span>Total Rental Collections</span><strong id="rentalTotalCollected">₱0.00</strong></article></div>
           <form id="rentalForm" class="inline-form">
             <label class="field"><span>Facility</span><select id="rentalFacility" required><option>Court</option><option>Clubhouse</option></select></label>
             <label class="field"><span>Date</span><input id="rentalDate" type="date" required></label>
@@ -193,6 +195,7 @@
 
         <section id="memberships" class="view">
           <div class="view-head"><h2>Membership Payments</h2></div>
+          <div class="metrics"><article><span>Total Membership Collections</span><strong id="membershipTotalCollected">₱0.00</strong></article></div>
           <form id="membershipForm" class="inline-form">
             <label class="field"><span>Member</span><select id="membershipMember" required></select></label>
             <label class="field"><span>Payment date</span><input id="membershipDate" type="date" required></label>
@@ -209,6 +212,7 @@
 
         <section id="certificates" class="view">
           <div class="view-head"><h2>Certificate Payments</h2></div>
+          <div class="metrics"><article><span>Total Certificate Collections</span><strong id="certificateTotalCollected">₱0.00</strong></article></div>
           <form id="certificateForm" class="inline-form">
             <label class="field"><span>Member</span><select id="certificateMember" required></select></label>
             <label class="field"><span>Payment date</span><input id="certificateDate" type="date" required></label>
@@ -250,6 +254,7 @@
           <div class="view-head">
             <h2>Expenses</h2>
           </div>
+          <div class="metrics"><article><span>Total Expenses</span><strong id="expenseTotalRecorded">₱0.00</strong></article></div>
           <form id="expenseForm" class="inline-form">
             <label class="field"><span>Date</span><input id="expenseDate" type="date" required></label>
             <label class="field"><span>Category</span><input id="expenseCategory" type="text" required></label>
@@ -270,6 +275,7 @@
           <div class="view-head">
             <h2>Payroll</h2>
           </div>
+          <div class="metrics"><article><span>Total Payroll</span><strong id="payrollTotalRecorded">₱0.00</strong></article></div>
           <form id="payrollForm" class="inline-form">
             <label class="field"><span>Date</span><input id="payrollDate" type="date" required></label>
             <label class="field"><span>Employee</span><input id="payrollName" type="text" required></label>

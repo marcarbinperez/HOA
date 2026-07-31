@@ -881,6 +881,7 @@ function renderDues() {
 
 function renderExpenses() {
   const expenses = [...state.expenses].sort(byDateDesc);
+  el("expenseTotalRecorded").textContent = peso.format(state.expenses.reduce((total, record) => total + money(record.amount), 0));
   const pageExpenses = paginateRecords("expenses", expenses, "expensesPager", renderExpenses);
   el("expensesTable").innerHTML = pageExpenses.map(expense => `
     <tr>
@@ -895,6 +896,7 @@ function renderExpenses() {
 
 function renderPayroll() {
   const payroll = [...state.payroll].sort(byDateDesc);
+  el("payrollTotalRecorded").textContent = peso.format(state.payroll.reduce((total, record) => total + money(record.amount), 0));
   const pagePayroll = paginateRecords("payroll", payroll, "payrollPager", renderPayroll);
   el("payrollTable").innerHTML = pagePayroll.map(payroll => `
     <tr>
@@ -913,6 +915,10 @@ function renderIncomeRecords() {
   renderIncomeTable("memberships", "membershipsTable", "membershipsPager", record => [record.date, memberName(record.memberId), record.note, peso.format(money(record.amount))], 5);
   renderIncomeTable("certificates", "certificatesTable", "certificatesPager", record => [record.date, memberName(record.memberId), record.note, peso.format(money(record.amount))], 5);
   renderIncomeTable("stickers", "stickersTable", "stickersPager", record => [record.date, record.year, record.vehicleType, record.plateNumber, record.ownerName, `Block ${record.block}, Lot ${record.lot}`, peso.format(money(record.amount))], 8);
+  el("donationTotalCollected").textContent = collectionTotal("donations");
+  el("rentalTotalCollected").textContent = collectionTotal("rentals");
+  el("membershipTotalCollected").textContent = collectionTotal("memberships");
+  el("certificateTotalCollected").textContent = collectionTotal("certificates");
   el("stickerTotalCollected").textContent = peso.format(state.stickers.reduce((total, record) => total + money(record.amount), 0));
   renderMemberPaymentOptions("membershipMember");
   renderMemberPaymentOptions("certificateMember");
@@ -1506,6 +1512,10 @@ function buildSyncPayload() {
     stickers: state.stickers.map(item => ({ ...item })),
     activity: state.activity.map(item => ({ ...item }))
   };
+}
+
+function collectionTotal(collection) {
+  return peso.format(state[collection].reduce((total, record) => total + money(record.amount), 0));
 }
 
 async function loadFromCloud(options = {}) {
