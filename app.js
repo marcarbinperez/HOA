@@ -2,7 +2,7 @@ const HOA_NAME = "Gentree Villas Homeowners Association Inc.";
 const STORAGE_KEY = "gentreeVillasHoaDataV1";
 const SYNC_META_KEY = "gentreeVillasHoaSyncMetaV1";
 const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6mEGMr1OlJc-k8Vus30c2JayWxSdiGTdBTyXE4HxjT-m3hc3iN_5ijKoijp9ZkV8D/exec";
-const CLOUD_COLLECTIONS = ["users", "members", "dues", "payments", "donations", "rentals", "memberships", "certificates", "expenses", "payroll", "activity"];
+const CLOUD_COLLECTIONS = ["users", "members", "dues", "payments", "donations", "rentals", "memberships", "certificates", "stickers", "expenses", "payroll", "activity"];
 const PAGE_SIZE = 15;
 const MAX_PAGE_BUTTONS = 8;
 const ADVANCE_DUE_ID = "__ADVANCE_PAYMENT__";
@@ -22,6 +22,7 @@ const state = {
   rentals: [],
   memberships: [],
   certificates: [],
+  stickers: [],
   expenses: [],
   payroll: [],
   activity: []
@@ -45,6 +46,7 @@ const pageState = {
   rentals: 1,
   memberships: 1,
   certificates: 1,
+  stickers: 1,
   expenses: 1,
   payroll: 1,
   users: 1
@@ -398,7 +400,7 @@ function normalizeRecords() {
     amount: money(payroll.amount)
   }));
 
-  ["donations", "rentals", "memberships", "certificates"].forEach(collection => {
+  ["donations", "rentals", "memberships", "certificates", "stickers"].forEach(collection => {
     state[collection] = state[collection].map(record => ({
       ...record,
       id: normalizeId(record.id),
@@ -627,7 +629,8 @@ function dashboardRecordMonths() {
     ...state.donations.map(item => normalizeMonth(item.date)),
     ...state.rentals.map(item => normalizeMonth(item.date)),
     ...state.memberships.map(item => normalizeMonth(item.date)),
-    ...state.certificates.map(item => normalizeMonth(item.date))
+    ...state.certificates.map(item => normalizeMonth(item.date)),
+    ...state.stickers.map(item => normalizeMonth(item.date))
   ].filter(Boolean))].sort();
 }
 
@@ -667,7 +670,7 @@ function totals(from = currentMonth(), to = from) {
   const outstanding = duesForRange.reduce((sum, due) => sum + dueBalance(due), 0);
   const expenseTotal = periodItemsRange(state.expenses, "date", rangeFrom, rangeTo).reduce((sum, item) => sum + money(item.amount), 0);
   const payrollTotal = periodItemsRange(state.payroll, "date", rangeFrom, rangeTo).reduce((sum, item) => sum + money(item.amount), 0);
-  const otherIncome = [state.donations, state.rentals, state.memberships, state.certificates]
+  const otherIncome = [state.donations, state.rentals, state.memberships, state.certificates, state.stickers]
     .flatMap(items => periodItemsRange(items, "date", rangeFrom, rangeTo))
     .reduce((sum, item) => sum + money(item.amount), 0);
   return {
@@ -909,6 +912,7 @@ function renderIncomeRecords() {
   renderIncomeTable("rentals", "rentalsTable", "rentalsPager", record => [record.facility, record.date, record.time, record.note, peso.format(money(record.amount))], 6);
   renderIncomeTable("memberships", "membershipsTable", "membershipsPager", record => [record.date, memberName(record.memberId), record.note, peso.format(money(record.amount))], 5);
   renderIncomeTable("certificates", "certificatesTable", "certificatesPager", record => [record.date, memberName(record.memberId), record.note, peso.format(money(record.amount))], 5);
+  renderIncomeTable("stickers", "stickersTable", "stickersPager", record => [record.date, record.year, record.vehicleType, record.plateNumber, record.ownerName, `Block ${record.block}, Lot ${record.lot}`, peso.format(money(record.amount))], 8);
   renderMemberPaymentOptions("membershipMember");
   renderMemberPaymentOptions("certificateMember");
 }
@@ -1828,6 +1832,22 @@ function bindEvents() {
     const memberId = el("certificateMember").value;
     addIncomeRecord("certificates", { memberId, date: el("certificateDate").value, note: el("certificateNote").value.trim(), amount: money(el("certificateAmount").value) }, `Recorded certificate payment from ${memberName(memberId)}`, event.target, "certificateDate");
   });
+  el("stickerForm").addEventListener("submit", event => {
+    event.preventDefault();
+    const ownerName = el("stickerOwnerName").value.trim();
+    const plateNumber = el("stickerPlateNumber").value.trim().toUpperCase();
+    addIncomeRecord("stickers", {
+      date: el("stickerDate").value,
+      year: Number(el("stickerYear").value),
+      vehicleType: el("stickerVehicleType").value.trim(),
+      plateNumber,
+      ownerName,
+      block: el("stickerBlock").value.trim(),
+      lot: el("stickerLot").value.trim(),
+      amount: money(el("stickerAmount").value)
+    }, `Recorded ${el("stickerYear").value} vehicle sticker payment from ${ownerName} (${plateNumber})`, event.target, "stickerDate");
+    el("stickerYear").value = new Date().getFullYear();
+  });
 
   el("settingsForm").addEventListener("submit", event => {
     event.preventDefault();
@@ -1999,6 +2019,8 @@ function seedDates() {
   el("rentalDate").value = today();
   el("membershipDate").value = today();
   el("certificateDate").value = today();
+  el("stickerDate").value = today();
+  el("stickerYear").value = new Date().getFullYear();
 }
 
 load();

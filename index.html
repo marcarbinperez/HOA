@@ -42,6 +42,7 @@
         <button class="nav-button" data-view="rentals">Rentals</button>
         <button class="nav-button" data-view="memberships">Membership</button>
         <button class="nav-button" data-view="certificates">Certificates</button>
+        <button class="nav-button" data-view="stickers">Stickers</button>
         <button class="nav-button" data-view="expenses">Expenses</button>
         <button class="nav-button" data-view="payroll">Payroll</button>
         <button class="nav-button" data-view="soa">SOA Print</button>
@@ -220,6 +221,26 @@
             <tbody id="certificatesTable"></tbody>
           </table></div>
           <div id="certificatesPager" class="pager"></div>
+        </section>
+
+        <section id="stickers" class="view">
+          <div class="view-head"><h2>Vehicle Stickers</h2></div>
+          <form id="stickerForm" class="inline-form">
+            <label class="field"><span>Payment date</span><input id="stickerDate" type="date" required></label>
+            <label class="field"><span>Sticker year</span><input id="stickerYear" type="number" min="2000" max="2100" step="1" required></label>
+            <label class="field"><span>Vehicle type</span><input id="stickerVehicleType" type="text" placeholder="Car, motorcycle, van..." required></label>
+            <label class="field"><span>Plate number</span><input id="stickerPlateNumber" type="text" required></label>
+            <label class="field"><span>Owner name</span><input id="stickerOwnerName" type="text" required></label>
+            <label class="field"><span>Block</span><input id="stickerBlock" type="text" required></label>
+            <label class="field"><span>Lot</span><input id="stickerLot" type="text" required></label>
+            <label class="field"><span>Sticker amount</span><input id="stickerAmount" type="number" min="0.01" step="0.01" required></label>
+            <button type="submit">Record Sticker Sale</button>
+          </form>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Date</th><th>Year</th><th>Vehicle Type</th><th>Plate Number</th><th>Owner</th><th>Block/Lot</th><th>Amount</th><th>Actions</th></tr></thead>
+            <tbody id="stickersTable"></tbody>
+          </table></div>
+          <div id="stickersPager" class="pager"></div>
         </section>
 
         <section id="expenses" class="view">
